@@ -57,20 +57,16 @@ slide.prototype={
 		//这里 对内容 以及 指定按钮 绑定对于的 index，考虑到之后加上循环的时候需要 对内容进行clone
 		_this.$_mainCell.each(function(index,item){
 			var $_item=$(item);
-			$_item.attr(_this.opt.prefix.main+"_index",index);
+			$_item.attr(_this.opt.prefix.main,index);
 		});
 		_this.$_titleCell.each(function(index,item){
 			var $_item=$(item);
-			$_item.attr(_this.opt.prefix.title+"_index",index);
+			$_item.attr(_this.opt.prefix.title,index);
 		});
 		//初始前
 		_this.opt && _this.opt.init_before && _this.opt.init_before.call && _this.opt.init_before.call(_this);
 		//初始化
-		if(_this.opt.custom_swf && C.isFunction(_this.opt.custom_swf["init"]) && _this.opt.custom_swf["show"]){
-			_this.opt.custom_swf.init.call(this);
-		}else{
-			_this.swf[_this.opt.effect].init.call(_this);
-		}
+		_this.swf[_this.opt.effect].init.call(_this);
 		//初始后
 		if(_this.index==0 && !_this.opt.loop && _this.$_prev.size){
 			_this.$_prev.css({display:"none"});
@@ -105,8 +101,8 @@ slide.prototype={
 			has_loop:false,
 			no_maopao:false,
 			prefix:{
-				title:"title"+randomstr(),
-				main:"main"+randomstr()
+				title:"title_index"+randomstr(),
+				main:"main_index"+randomstr()
 			},
 			has_touch:false,
 			touch_obj:{
@@ -204,7 +200,7 @@ slide.prototype={
 			}
 
 
-			_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"_index="+_this.index+"]"));
+			_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"="+_this.index+"]"));
 			_this.$_wrap.data("is_lock",true);
 		});
 		//下一个
@@ -232,7 +228,7 @@ slide.prototype={
 				}
 			}
 
-			_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"_index="+_this.index+"]"));
+			_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"="+_this.index+"]"));
 			_this.$_wrap.data("is_lock",true);
 		});
 
@@ -248,10 +244,10 @@ slide.prototype={
 		_this.opt.titleCell && _this.$_wrap.on("click",_this.opt.titleCell,function(e){
 			var $_this=$(e.currentTarget);
 			_this.last=_this.index;
-			_this.index=$_this.attr(_this.opt.prefix.title+"_index");
+			_this.index=$_this.attr(_this.opt.prefix.title);
 
 			if(_this.index > _this.$_mainCell.size()-1 || $_this.hasClass(_this.opt.title_class)) return false;
-			_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"_index="+_this.index+"]"));
+			_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"="+_this.index+"]"));
 			_this.$_wrap.data("is_lock",true);
 
 		});
@@ -271,48 +267,110 @@ slide.prototype={
 			cc_obj.count_w+=$_item.outerWidth(true);
 			if(cc_obj.max_h<$_item.height()){
 				cc_obj.max_h=$_item.height();
+				cc_obj.max_outer_h=$_item.outerHeight(true);
 			}
 			if(cc_obj.max_w<$_item.width()){
-				cc_obj.max_w=$_item.width()
+				cc_obj.max_w=$_item.width();
+				cc_obj.max_outer_w=$_item.outerWidth(true);
 			}
 		});
 		return cc_obj;
 	},
 	//动画对象
 	swf:{
-		left_card:{
+		left_card:{//只适合满盒子宽高切换
 			init:function(){
-				var _this=this;
-
-				if(!_this){
-					return false;
-				}
-
+				var _this=this,
+					m_wrap_info,
+					$_maincell_parent=_this.$_mainCell.parent();
+				m_wrap_info=_this.get_cell_info(_this.$_mainCell);
 				_this.$_mainCell.css({
 					position:"absolute",
 					left:0,
 					top:0,
-					zIndex:3,
-					opacity:0
+					display:"none",
+					zIndex:2
 				});
+				if($_maincell_parent.css("position") =="static"){
+					$_maincell_parent.css({
+						position:"relative",
+						height:m_wrap_info.max_h+"px"
+					});
+				}
+				console.log(m_wrap_info);
+				$_maincell_parent.css({
+					height:m_wrap_info.height+"px"
+				}).data("cache_w",m_wrap_info.max_outer_w);
+				if(C.testCss3Attr("transform")){
+					css3swf
+						.Translate(_this.$_mainCell.eq(0),0,m_wrap_info.max_outer_w,0,function(){
+							_this.$_mainCell.eq(0).css({
+								display:"block",
+								zIndex:3
+							})
+						},{
+							threed:true
+						})
+						.Translate(_this.$_mainCell.eq(0),300,0,0,function(){
+							_this.$_mainCell.eq(0).addClass("_thisClass");
+						},{threed:true});
+				}else{
+					_this.$_mainCell.eq(0).css({left:m_wrap_info.max_outer_w,display:"blick"}).animate({
+						left:0
+					},300,function() {
+						_this.$_mainCell.eq(0).addClass("_thisClass");
+					})
+				}
 
 
 			},
 			show:function(ele){
 				var _this=this,
-					cc_mainCell_len=_this.$_mainCell.length,
-					$_ele=$(ele);
-				if(cc_mainCell_len==0) return false;
-				switch(cc_mainCell_len){
-					case "1":
-						_this.$_mainCell.eq(0).css({
-							opacity:1
-						});
-						break;
-					case "2":
-						break;
-					default:
-						break;
+					$_last=_this.$_mainCell.eq(_this.last),
+					$_ele=$(ele),
+					cc_last_x={
+						before:0
+					},
+					cc_index_x= {
+						after:0
+					},
+					cc_outer_w=$_ele.parent().data("cache_w");
+
+				_this.$_mainCell.css({display:"none",zIndex:2}).removeClass("_thisClass");
+				css3swf.Translate(_this.$_mainCell,0,0,0);
+				$_ele.css({display:"block",zIndex:3});
+				$_last.css({display:"block",zIndex:3});
+				//next
+				if((_this.index==_this.$_mainCell.size()-1 && _this.last==0) || _this.index>_this.last){
+					cc_last_x.after=0-cc_outer_w;
+					cc_index_x.before=cc_outer_w;
+				}
+				//prev
+				else if((_this.index==0 && _this.last==_this.$_mainCell.size()-1) || _this.index<_this.last){
+					cc_last_x.after=cc_outer_w;
+					cc_index_x.before=0-cc_outer_w;
+				}
+
+				if(C.testCss3Attr("transform")){
+					css3swf
+						.Translate($_last,0,cc_last_x.before+"px",0,function(){},{threed:true})
+						.Translate($_last,300,cc_last_x.after+"px",0,function(){},{threed:true});
+					css3swf
+						.Translate($_ele,0,cc_index_x.before+"px",0,function(){},{threed:true})
+						.Translate($_ele,300,cc_index_x.after+"px",0,function(){
+							$_ele.addClass("_thisClass");
+							_this.$_wrap.data("is_lock",false);
+						},{threed:true});
+				}else{
+					$_last.css({left:cc_last_x.before}).animate({
+						left:cc_last_x.after
+					},300);
+					$_ele.css({left:cc_index_x.before}).animate({
+						left:cc_index_x.after
+					},300,function(){
+						$_ele.addClass("_thisClass");
+						_this.$_wrap.data("is_lock",false);
+					});
 				}
 			}
 		},
@@ -372,7 +430,7 @@ slide.prototype={
 						_this.$_s_wrap_title.parent().css("position","relative");
 					}
 				};
-				_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"_index=0]"));
+				_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"=0]"));
 
 			},
 			show:function(ele,is_title){
@@ -381,7 +439,7 @@ slide.prototype={
 					dx=0-$_ele.outerWidth(true)*_this.index+'px';
 				if(!_this.$_wrap.data('is_lock') && !$_ele.hasClass("_thisClass")){
 					_this.$_s_wrap_main.data('is_animate_on','true');
-					_this.$_wrap.find("["+_this.opt.prefix.title+"_index="+_this.index+"]").addClass(_this.opt.title_class).siblings().removeClass(_this.opt.title_class);
+					_this.$_wrap.find("["+_this.opt.prefix.title+"="+_this.index+"]").addClass(_this.opt.title_class).siblings().removeClass(_this.opt.title_class);
 					css3swf.Translate(_this.$_s_wrap_main,300,dx,0,function(){
 						_this.$_mainCell.filter("._thisClass").removeClass("_thisClass");
 						$_ele.addClass("_thisClass");
@@ -432,7 +490,7 @@ slide.prototype={
 						_this.$_s_wrap_title.parent().css("position","relative");
 					}
 				};
-				_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"_index=0]"));
+				_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"=0]"));
 			},
 			show:function(ele){
 
@@ -441,8 +499,8 @@ slide.prototype={
 				if(!_this.$_wrap.data('is_lock')){
 					_this.$_mainCell.fadeOut(_this.opt.time);
 					_this.$_mainCell.filter("._thisClass").removeClass("_thisClass");
-					// _this.$_wrap.removeClass(_this.opt.title_class).find("["+_this.opt.prefix.title+"_index="+_this.index+"]").addClass(_this.opt.title_class);
-					_this.$_wrap.find("["+_this.opt.prefix.title+"_index="+_this.index+"]").addClass(_this.opt.title_class).siblings().removeClass(_this.opt.title_class);
+					
+					_this.$_wrap.find("["+_this.opt.prefix.title+"="+_this.index+"]").addClass(_this.opt.title_class).siblings().removeClass(_this.opt.title_class);
 					$_ele.fadeIn(_this.opt.time,function(){
 						$_ele.addClass("_thisClass");
 						_this.$_wrap.data('is_lock',false);
@@ -462,13 +520,11 @@ slide.prototype={
 				});
 				if(_this.$_mainCell.parent().css("position") == "static"){
 					_this.$_mainCell.parent().css({
-						position:'relative'
+						position:'relative',
+						height:_this.$_mainCell.eq(0).height()+"px"
 					});
 				}
-
-
-				_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"_index=0]"));
-
+				_this.show(_this.$_wrap.find("["+_this.opt.prefix.main+"=0]"));
 			},
 			show:function(ele){
 				var _this=this,

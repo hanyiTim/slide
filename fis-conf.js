@@ -3,7 +3,7 @@
  *
  * 
  */
-var __domain="http://127.0.0.1:4040";
+var __domain="http://127.0.0.1:8080";
 
 //配置
 var fyg_conf={
@@ -14,7 +14,8 @@ var fyg_conf={
 		Vue:"/static/js/lib/vue.js",
 		$:"/static/js/lib/jquery1.8.js",
 		css3swf:"/static/js/base/css3swf.js",
-		C:"/static/js/base/common.js"
+		C:"/static/js/base/common.js",
+		slide:"/static/js/function/slide.js"
 	},
 	page_requires:[//每个页面需要依赖的js css
 		"static/js/lib/mod.js",
@@ -43,5 +44,4 @@ fis.match("::package",{
 	packager:fis.plugin("map",{
 	})
 });
-
 fis.set("fyg_conf",fyg_conf);
