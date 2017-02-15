@@ -1,27 +1,28 @@
 # slide
 //2017-02-15
-µ÷ÓÃ·½Ê½
-require slideÖ®ºó£¬µ÷ÓÃslide·½·¨£¬ÀıÈç
+è°ƒç”¨æ–¹å¼
+require slideä¹‹åï¼Œè°ƒç”¨slideæ–¹æ³•ï¼Œä¾‹å¦‚
+```
 slide.slide(opt);
 //opt
 {
-	wrap:".wrap"  								//slide ºĞ×Ó
-	mainCell:".bd a"   							// ÂÖ²¥ÄÚÈİ Ñ¡ÔñÆ÷
-	titleCell:".hd a"  							// Ë÷Òı Ñ¡ÔñÆ÷
-	title_class:"on" 							//  Ë÷Òıµ±Ç°class
-	effect:"left"  								//¶¯»­  ÀıÈç  left || fade
-	time:500    								//¶¯»­Ê±¼ä  norml:500
-	prev:'.btn_prev'   							//ÉÏÒ»¸ö°´Å¥  Ñ¡ÔñÆ÷
-	next:'.btn_next'  							//ÏÂÒ»¸ö°´Å¥Ñ¡ÔñÆ÷
-	differ:1  									//ÇĞ»»µÄ ÄÚÈİ ¸öÊı
-	visit:2   									//¿ÉÊÓµÄ ÄÚÈİ ¸öÊı
-	init_bafore:function(){}  					//³õÊ¼»¯Ç°  Ö´ĞĞº¯Êı
-	init_after:function(){} 					//³õÊ¼»¯ºó Ö´ĞĞº¯Êı
-	has_touch									//ÊÇ·ñ¿ÉÒÔ ´¥Åö
-	has_loop                                    //ÇĞ»»ÊÇ·ñÑ­»·
-    no_maopao                                   //touchstart ²»Ã°Åİ
+	wrap:".wrap"  								//slide ç›’å­
+	mainCell:".bd a"   							// è½®æ’­å†…å®¹ é€‰æ‹©å™¨
+	titleCell:".hd a"  							// ç´¢å¼• é€‰æ‹©å™¨
+	title_class:"on" 							//  ç´¢å¼•å½“å‰class
+	effect:"left"  								//åŠ¨ç”»  ä¾‹å¦‚  left || fade
+	time:500    								//åŠ¨ç”»æ—¶é—´  norml:500
+	prev:'.btn_prev'   							//ä¸Šä¸€ä¸ªæŒ‰é’®  é€‰æ‹©å™¨
+	next:'.btn_next'  							//ä¸‹ä¸€ä¸ªæŒ‰é’®é€‰æ‹©å™¨
+	differ:1  									//åˆ‡æ¢çš„ å†…å®¹ ä¸ªæ•°
+	visit:2   									//å¯è§†çš„ å†…å®¹ ä¸ªæ•°
+	init_bafore:function(){}  					//åˆå§‹åŒ–å‰  æ‰§è¡Œå‡½æ•°
+	init_after:function(){} 					//åˆå§‹åŒ–å æ‰§è¡Œå‡½æ•°
+	has_touch									//æ˜¯å¦å¯ä»¥ è§¦ç¢°
+	has_loop                                    //åˆ‡æ¢æ˜¯å¦å¾ªç¯
+    no_maopao                                   //touchstart ä¸å†’æ³¡
 	touch_opt:{
-		 sen									//´¥Åö´óÓÚ¶àÉÙ¾àÀë´¥·¢
+		 sen									//è§¦ç¢°å¤§äºå¤šå°‘è·ç¦»è§¦å‘
 		 fn_lsit:{
 			 touch_left:function(){},
 			 touch_right:function(){},
@@ -30,7 +31,7 @@ slide.slide(opt);
 		 }
 	}
 
-	custom_event:{//×Ô¶¨Òå ÊÂ¼ş
+	custom_event:{//è‡ªå®šä¹‰ äº‹ä»¶
 		".bd a":{
 			"click":function(e){
 				console.log(e.target);
@@ -38,5 +39,4 @@ slide.slide(opt);
 		}
 	}
 };
-
-
+```
